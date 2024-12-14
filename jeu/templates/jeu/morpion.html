@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Morpion E-Cherica</title>
+    <title>E-CHERICA Morpion</title>
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <style>
         body {
@@ -30,6 +30,7 @@
         }
 
         h1 {
+            color: #00ff00;
             text-shadow: 0 0 5px #00ff00;
             margin-bottom: 20px;
         }
@@ -51,6 +52,7 @@
         #plateau {
             width: 300px;
             height: 300px;
+            border-collapse: separate;
             border-spacing: 10px;
             margin: 20px auto;
         }
@@ -73,14 +75,6 @@
             box-shadow: 0 0 10px #00ff00;
         }
 
-        #plateau td.x {
-            color: red; /* Couleur des X (Hacker) */
-        }
-
-        #plateau td.o {
-            color: blue; /* Couleur des O (IA) */
-        }
-
         button {
             background-color: #0a0a0a;
             border: 1px solid #00ff00;
@@ -90,6 +84,7 @@
             cursor: pointer;
             border-radius: 5px;
             transition: all 0.3s;
+            font-family: 'Share Tech Mono', monospace;
         }
 
         button:hover {
@@ -98,9 +93,48 @@
             box-shadow: 0 0 10px #00ff00;
         }
 
+        @keyframes glitch {
+            0% {
+                text-shadow: 0.05em 0 0 #00fffc, -0.05em -0.025em 0 #fc00ff,
+                    0.025em 0.05em 0 #fffc00;
+            }
+            14% {
+                text-shadow: 0.05em 0 0 #00fffc, -0.05em -0.025em 0 #fc00ff,
+                    0.025em 0.05em 0 #fffc00;
+            }
+            15% {
+                text-shadow: -0.05em -0.025em 0 #00fffc, 0.025em 0.025em 0 #fc00ff,
+                    -0.05em -0.05em 0 #fffc00;
+            }
+            49% {
+                text-shadow: -0.05em -0.025em 0 #00fffc, 0.025em 0.025em 0 #fc00ff,
+                    -0.05em -0.05em 0 #fffc00;
+            }
+            50% {
+                text-shadow: 0.025em 0.05em 0 #00fffc, 0.05em 0 0 #fc00ff,
+                    0 -0.05em 0 #fffc00;
+            }
+            99% {
+                text-shadow: 0.025em 0.05em 0 #00fffc, 0.05em 0 0 #fc00ff,
+                    0 -0.05em 0 #fffc00;
+            }
+            100% {
+                text-shadow: -0.025em 0 0 #00fffc, -0.025em -0.025em 0 #fc00ff,
+                    -0.025em -0.05em 0 #fffc00;
+            }
+        }
+
         h1, h2 {
             animation: glitch 1s linear infinite;
         }
+        #plateau td.x {
+            color: red; /* Couleur des X */
+        }
+        
+        #plateau td.o {
+            color: red; /* Couleur des O */
+        }
+        
     </style>
     <script>
         let scoreJoueur = 0;
@@ -126,8 +160,9 @@
                         "Content-Type": "application/x-www-form-urlencoded",
                         "X-CSRFToken": "{{ csrf_token }}"
                     },
-                    body: `plateau=${JSON.stringify(plateau)}`
+                    body: `plateau=${encodeURIComponent(JSON.stringify(plateau))}`
                 });
+                
 
                 const data = await response.json();
                 mettreAJourPlateau(data.plateau);
@@ -135,7 +170,7 @@
                 // Vérifier les conditions de victoire ou d'égalité
                 if (data.victoire) {
                     scoreOrdinateur++;
-                    alert("L'IA a gagné !");
+                    alert("L'IA a piraté le jeu !");
                     mettreAJourScores();
                     desactiverPlateau();
                 } else if (data.plein) {
@@ -150,15 +185,16 @@
                 for (let j = 0; j < 3; j++) {
                     const cell = table.rows[i].cells[j];
                     cell.innerText = plateau[i][j];
-                    cell.classList.remove("x", "o"); 
+                    cell.classList.remove("x", "o"); // Retirer les classes précédentes
                     if (plateau[i][j] === "X") {
-                        cell.classList.add("x");
+                        cell.classList.add("x"); // Ajouter la classe pour "X"
                     } else if (plateau[i][j] === "O") {
-                        cell.classList.add("o");
+                        cell.classList.add("o"); // Ajouter la classe pour "O"
                     }
                 }
             }
         }
+        
 
         function mettreAJourScores() {
             document.getElementById("score-joueur").innerText = scoreJoueur;
@@ -171,9 +207,11 @@
         }
 
         function rejouer() {
+            // Réinitialiser le plateau
             const plateauVide = [["", "", ""], ["", "", ""], ["", "", ""]];
             mettreAJourPlateau(plateauVide);
 
+            // Réactiver les cellules
             const cells = document.querySelectorAll("#plateau td");
             cells.forEach((cell, index) => {
                 cell.onclick = () => jouer(cell);
@@ -185,7 +223,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>Morpion E-Cherica</h1>
+        <h1>Morpion Cherica</h1>
 
         <div id="scores">
             <div class="score-box">
